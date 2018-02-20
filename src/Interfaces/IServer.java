@@ -1,6 +1,6 @@
 package Interfaces;
 
-public interface Server {
+public interface IServer {
 
 	public void run();
 	public void handleRequest();

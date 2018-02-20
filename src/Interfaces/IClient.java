@@ -1,6 +1,6 @@
 package Interfaces;
 
-public interface Client {
+public interface IClient {
 	
 	public boolean doOperation();
 	public void run();
