@@ -3,7 +3,7 @@ package Main;
 import Interfaces.ILog;
 import Interfaces.IRequest;
 
-public class Reader implements IRequest {
+public class Reader extends Thread implements IRequest{
 
 	public void run() {
 		// TODO Auto-generated method stub
