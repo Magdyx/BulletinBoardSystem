@@ -1,42 +1,47 @@
-package Main;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import Interfaces.IRequest;
 
 public class Writer extends Thread implements IRequest {
-	
+
 	private Socket socket;
 	private String writerID;
 	private String value;
 	private int seqNum;
-	
-	
+
+
 	public Writer(Socket socket, String readerID, String value , int seqNum) {
 		this.socket = socket;
 		this.writerID = readerID;
 		this.value = value;
 		this.seqNum = seqNum;
 	}
-	
+
 
 	public void run() {
 		// TODO Auto-generated method stub
-		StringBuilder log = new StringBuilder(); 
-		
+
+		StringBuilder log = new StringBuilder();
+
 		log.append(Integer.toString(seqNum));
 		log.append("\t");
 		log.append(value);
 		log.append("\t");
 		log.append(writerID);
-		
+		log.append("\n");
+
 		try {
 			PrintWriter out;
 			try {
 				out = new PrintWriter(socket.getOutputStream(), true);
 				writeData(value);
-				out.println(Integer.toString(seqNum));
+				int rSeq = ++Server.rSeq;
+				StringBuilder temp = new StringBuilder();
+				temp.append(Integer.toString(seqNum));
+				temp.append("\n");
+				temp.append(Integer.toString(rSeq));
+				out.println(new String(temp));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -49,11 +54,12 @@ public class Writer extends Thread implements IRequest {
                 socket.close();
                 Server.write = false;
                 Server.numberOfWriter--;
-                
+
                 while(true){
         			if (!Server.writerLog){
         				Server.writerLog = true;
         				Server.updateLogWriter(new String(log));
+						break;
         			}else{
         				try {
 							Thread.sleep(1000);
@@ -63,14 +69,14 @@ public class Writer extends Thread implements IRequest {
 						}
         			}
         		}
-                
+
             } catch (IOException e) {
                // error happen
             }
             // finish
         }
-		
-		
+
+
 	}
 
 	public String readData() throws InterruptedException{
@@ -83,7 +89,17 @@ public class Writer extends Thread implements IRequest {
 		while(true){
 			if (!Server.write){
 				Server.write = true;
+				try {
+					long time = (long) (Math.random() * 10000);
+				   System.out.println("time sleep writer with id " + writerID + " " + time);
+					Thread.sleep(time);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 				Server.news = value;
+				Server.writeNews(value);
 				return;
 			}else{
 				Thread.sleep(1000);
@@ -91,6 +107,6 @@ public class Writer extends Thread implements IRequest {
 		}
 	}
 
-	
-	
+
+
 }

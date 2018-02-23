@@ -1,0 +1,1 @@
+1-Server run on the main host, the one where start.java is present.
