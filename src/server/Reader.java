@@ -42,7 +42,7 @@ public class Reader extends Thread implements IRequest{
 			System.out.println("run seq" + seqNum);
 			out.println(new String(temp));
 
-			log.append(Integer.toString(seqNum));
+			log.append(Integer.toString(rSeq));
 			log.append("\t");
 			log.append(readedNews.replaceAll("\n",""));
 			log.append("\t");

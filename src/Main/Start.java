@@ -24,6 +24,7 @@ public class Start {
 
 		Process p;
 		String command, s, args;
+		String srvHost, srvUser, srvPass;
 		int rdCount, wrCount;
 
 		// read configuration
@@ -50,33 +51,16 @@ public class Start {
 			// exception handling left as an exercise for the reader
 		}
 
-		ServerThread srvTh = new ServerThread();
+		String temp = props.get("srvIp");
+		srvUser = temp.substring(0,temp.indexOf("@"));
+		srvHost = temp.substring(temp.indexOf("@")+1);
+		srvPass = props.get("srvPass");
+		System.out.println("server parameters " + srvUser + " " + srvHost + " " + srvPass);
+		String [] srvCommands = {"cd $HOME/workspace/dist1; chmod 755 srv_script; ./srv_script"}; 
+		ServerThread srvTh = new ServerThread(srvHost, srvUser, srvPass, srvCommands);
 		Thread myThread = new Thread(srvTh);
 		myThread.start();
-		// try {
-		// Runtime.getRuntime().exec("chmod 755 srv_script");
-		// p = Runtime.getRuntime().exec("./srv_script");
-		// BufferedReader stdInput = new BufferedReader(new
-		// InputStreamReader(p.getInputStream()));
-		//
-		// BufferedReader stdError = new BufferedReader(new
-		// InputStreamReader(p.getErrorStream()));
-		//
-		// // read the output from the command
-		// System.out.println("Here is the standard output of the command:\n");
-		// while ((s = stdInput.readLine()) != null) {
-		// System.out.println(s);
-		// }
-		//
-		// // read any errors from the attempted command
-		// System.out.println("Here is the standard error of the command (if any):\n");
-		// while ((s = stdError.readLine()) != null) {
-		// System.out.println(s);
-		// }
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
-		System.out.println("Samor");
+		
 		// execute clients
 		rdCount = Integer.parseInt(props.get("rdCount"));
 		wrCount = Integer.parseInt(props.get("wrCount"));
@@ -96,67 +80,6 @@ public class Start {
 		
 		readersThread.start();
 		writersThread.start();
-		
-//		for (int i = 0; i < rdCount; i++) {
-//			String temp, user, host, password;
-//			temp = props.get("rd" + i);
-//			user = temp.substring(0, temp.indexOf('@'));
-//			host = temp.substring(temp.indexOf('@') + 1);
-//			password = props.get("rdPass" + i);
-//			makeScript(false);
-//			// append args
-//			
-//			String commands[] = { "cd $HOME/Desktop/client;pwd; javac *.java;java MyClient" };
-//			args = commands[0];
-//			args += " ";
-//			args += props.get("srvIp");
-//			args += " ";
-//			args += props.get("srvPort");
-//			args += " ";
-//			args += i; // TODO: fix id
-//			args += " ";
-//			args += props.get("acCount");
-//			args += " ";
-//			args += "r";
-//			commands[0] = args;
-//			/*
-//			 * transfer client script file to remote in client folder cd to
-//			 * client folder execute script file
-//			 */
-//			createClient(user, host, password, commands);
-//
-//		}
-
-//		for (int i = 0; i < wrCount; i++) {
-//			String temp, user, host, password;
-//			int id = rdCount;
-//			temp = props.get("wr" + i);
-//			user = temp.substring(0, temp.indexOf('@'));
-//			host = temp.substring(temp.indexOf('@') + 1);
-//			password = props.get("wrPass" + i);
-//			makeScript(false);
-//			// append args
-//
-//			String commands[] = { "cd $HOME/Desktop/client; pwd; javac *.java;java MyClient" };
-//			args = commands[0];
-//			args += " ";
-//			args += props.get("srvIp");
-//			args += " ";
-//			args += props.get("srvPort");
-//			args += " ";
-//			args += id; // TODO: fix id
-//			args += " ";
-//			args += props.get("acCount");
-//			args += " ";
-//			args += "w";
-//			commands[0] = args;
-//			/*
-//			 * transfer client script file to remote in client folder cd to
-//			 * client foldere execute script file
-//			 */
-//			createClient(user, host, password, commands);
-//
-//		}
 
 	}
 
@@ -243,34 +166,52 @@ public class Start {
 	}
 
 	static class ServerThread implements Runnable {
+		
+		private String host;
+		private String user;
+		private String password;
+		private String [] commands;
+		
+		public ServerThread(String host , String user , String password , String [] commands) {
+			this.host = host;
+			this.user = user;
+			this.password = password;
+			this.commands = commands;
+		}
+		
 		public void run() {
-			String s;
-			Process p;
-			try {
-				Runtime.getRuntime().exec("chmod 755 srv_script");
-				p = Runtime.getRuntime().exec("./srv_script");
-				BufferedReader stdInput = new BufferedReader(
-						new InputStreamReader(p.getInputStream()));
-
-				BufferedReader stdError = new BufferedReader(
-						new InputStreamReader(p.getErrorStream()));
-
-				// read the output from the command
-				System.out
-						.println("Here is the standard output of the command:\n");
-				while ((s = stdInput.readLine()) != null) {
-					System.out.println(s);
-				}
-
-				// read any errors from the attempted command
-				System.out
-						.println("Here is the standard error of the command (if any):\n");
-				while ((s = stdError.readLine()) != null) {
-					System.out.println(s);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+//			String s;
+//			Process p;
+//			try {
+//				Runtime.getRuntime().exec("chmod 755 srv_script");
+//				p = Runtime.getRuntime().exec("./srv_script");
+//				BufferedReader stdInput = new BufferedReader(
+//						new InputStreamReader(p.getInputStream()));
+//
+//				BufferedReader stdError = new BufferedReader(
+//						new InputStreamReader(p.getErrorStream()));
+//
+//				// read the output from the command
+//				System.out
+//						.println("Here is the standard output of the command:\n");
+//				while ((s = stdInput.readLine()) != null) {
+//					System.out.println(s);
+//				}
+//
+//				// read any errors from the attempted command
+//				System.out
+//						.println("Here is the standard error of the command (if any):\n");
+//				while ((s = stdError.readLine()) != null) {
+//					System.out.println(s);
+//				}
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+			createFactory();
+		}
+		
+		private void createFactory() {
+			createClient(user, host, password, commands);
 		}
 	}
 	
@@ -293,12 +234,13 @@ public class Start {
 				user = temp.substring(0, temp.indexOf('@'));
 				host = temp.substring(temp.indexOf('@') + 1);
 				password = props.get("rdPass" + i);
-
+				temp = props.get("srvIp");
+				
 				String commands[] = { "cd $HOME/Desktop/client;pwd; javac *.java;java MyClient" };
 				
 				args = commands[0];
 				args += " ";
-				args += props.get("srvIp");
+				args += temp.substring(temp.indexOf("@")+1); //TODO fix reading srvIp
 				args += " ";
 				args += props.get("srvPort");
 				args += " ";
@@ -351,17 +293,19 @@ public class Start {
 		public void run() {
 			for (int i = 0; i < wrCount; i++) {
 				String temp, user, host, password, args;
-				int id = rdCount;
+				int id = rdCount+i;
 				temp = props.get("wr" + i);
 				user = temp.substring(0, temp.indexOf('@'));
 				host = temp.substring(temp.indexOf('@') + 1);
 				password = props.get("wrPass" + i);
+				
+				temp = props.get("srvIp");
 				// append args
 
 				String commands[] = { "cd $HOME/Desktop/client; pwd; javac *.java;java MyClient" };
 				args = commands[0];
 				args += " ";
-				args += props.get("srvIp");
+				args += temp.substring(temp.indexOf("@")+1); 
 				args += " ";
 				args += props.get("srvPort");
 				args += " ";
@@ -469,6 +413,7 @@ public class Start {
 			HashMap<String, String> mappingKeys = new HashMap<String, String>();
 			mappingKeys.put("RW.server", "srvIp");
 			mappingKeys.put("RW.server.port", "srvPort");
+			mappingKeys.put("RW.server.password", "srvPass");
 			mappingKeys.put("RW.numberOfReaders", "rdCount");
 			mappingKeys.put("RW.numberOfWriters", "wrCount");
 			mappingKeys.put("RW.numberOfAccesses", "acCount");
@@ -476,6 +421,7 @@ public class Start {
 			mappingKeys.put("RW.writer", "wr");
 			mappingKeys.put("RW.password.reader", "rdPass");
 			mappingKeys.put("RW.password.writer", "wrPass");
+			
 			return mappingKeys;
 		}
 

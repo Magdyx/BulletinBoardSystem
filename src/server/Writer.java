@@ -24,12 +24,7 @@ public class Writer extends Thread implements IRequest {
 
 		StringBuilder log = new StringBuilder();
 
-		log.append(Integer.toString(seqNum));
-		log.append("\t");
-		log.append(value);
-		log.append("\t");
-		log.append(writerID);
-		log.append("\n");
+
 
 		try {
 			PrintWriter out;
@@ -37,6 +32,13 @@ public class Writer extends Thread implements IRequest {
 				out = new PrintWriter(socket.getOutputStream(), true);
 				writeData(value);
 				int rSeq = ++Server.rSeq;
+				log.append(Integer.toString(rSeq));
+				log.append("\t");
+				log.append(value);
+				log.append("\t");
+				log.append(writerID);
+				log.append("\n");
+
 				StringBuilder temp = new StringBuilder();
 				temp.append(Integer.toString(seqNum));
 				temp.append("\n");

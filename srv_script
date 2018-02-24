@@ -3,4 +3,4 @@
 
 cd $HOME/Desktop/server;
 javac *.java;
-java MyServer 49052 1 1
+java MyServer 49052 2 2

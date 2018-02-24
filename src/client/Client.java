@@ -157,7 +157,7 @@ public class Client implements IClient {
 			if (!readOrWriter){ // reader
 				bwLogClient.write("rSeq\tsSeq\toVal\n");
 			}else{
-				bwLogClient.write("rSeq\tosSeq\n");
+				bwLogClient.write("rSeq\tsSeq\n");
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
