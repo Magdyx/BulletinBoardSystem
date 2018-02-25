@@ -1,6 +1,0 @@
-#!/bin/bash
-# My first script
-
-cd $HOME/Desktop/server;
-javac *.java;
-java MyServer 49052 2 2

@@ -1,6 +1,0 @@
-#!/bin/bash
-# My first script
-
-cd $HOME/Desktop/client;
-javac *.java;
-java Client
