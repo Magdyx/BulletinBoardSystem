@@ -1,13 +1,8 @@
 package Main;
 
 import com.jcraft.jsch.*;
-import java.awt.*;
-import javax.swing.*;
 import java.io.*;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 
 public class Start {
@@ -22,8 +17,6 @@ public class Start {
 		 * folder on desktop, compile and run using make file
 		 */
 
-		Process p;
-		String command, s, args;
 		String srvHost, srvUser, srvPass;
 		int rdCount, wrCount;
 
@@ -32,32 +25,12 @@ public class Start {
 		HashMap<String, String> props = fh.readConfiguration();
 		printConfigFile(props);
 
-		// run server
-		// cd to server folder on desktop
-		makeScript(true); // true server
-		// append server args
-		try {
-			args = "";
-			args += " ";
-			args += props.get("srvPort");
-			args += " ";
-			args += props.get("rdCount");
-			args += " ";
-			args += props.get("wrCount");
-
-			Files.write(Paths.get("srv_script"), args.getBytes(),
-					StandardOpenOption.APPEND);
-		} catch (IOException e) {
-			// exception handling left as an exercise for the reader
-		}
-
 		String temp = props.get("srvIp");
 		srvUser = temp.substring(0,temp.indexOf("@"));
 		srvHost = temp.substring(temp.indexOf("@")+1);
 		srvPass = props.get("srvPass");
 		System.out.println("server parameters " + srvUser + " " + srvHost + " " + srvPass);
-		String [] srvCommands = {"cd $HOME/workspace/dist1; chmod 755 srv_script; ./srv_script"}; 
-		ServerThread srvTh = new ServerThread(srvHost, srvUser, srvPass, srvCommands);
+		ServerThread srvTh = new ServerThread(srvHost, srvUser, srvPass, props);
 		Thread myThread = new Thread(srvTh);
 		myThread.start();
 		
@@ -138,27 +111,6 @@ public class Start {
 
 	}
 
-	private static void makeScript(boolean type) {
-		String file1, file2;
-		if (type) {
-			file1 = "srv_temp";
-			file2 = "srv_script";
-		} else {
-			file1 = "clt_temp";
-			file2 = "clt_script";
-		}
-		try {
-			FileChannel src = new FileInputStream(file1).getChannel();
-			FileChannel dest = new FileOutputStream(file2).getChannel();
-			dest.transferFrom(src, 0, src.size());
-			src.close();
-			dest.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-
 	private static void printConfigFile(HashMap<String, String> props) {
 		for (String key : props.keySet()) {
 			System.out.println(key + " " + props.get(key));
@@ -171,43 +123,31 @@ public class Start {
 		private String user;
 		private String password;
 		private String [] commands;
+		private HashMap<String, String> props;
 		
-		public ServerThread(String host , String user , String password , String [] commands) {
+		public ServerThread(String host, String user, String password, HashMap<String, String> props) {
 			this.host = host;
 			this.user = user;
 			this.password = password;
-			this.commands = commands;
+			this.props = props;
 		}
 		
 		public void run() {
-//			String s;
-//			Process p;
-//			try {
-//				Runtime.getRuntime().exec("chmod 755 srv_script");
-//				p = Runtime.getRuntime().exec("./srv_script");
-//				BufferedReader stdInput = new BufferedReader(
-//						new InputStreamReader(p.getInputStream()));
-//
-//				BufferedReader stdError = new BufferedReader(
-//						new InputStreamReader(p.getErrorStream()));
-//
-//				// read the output from the command
-//				System.out
-//						.println("Here is the standard output of the command:\n");
-//				while ((s = stdInput.readLine()) != null) {
-//					System.out.println(s);
-//				}
-//
-//				// read any errors from the attempted command
-//				System.out
-//						.println("Here is the standard error of the command (if any):\n");
-//				while ((s = stdError.readLine()) != null) {
-//					System.out.println(s);
-//				}
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+			makeServerCommand();
 			createFactory();
+		}
+		
+		private void makeServerCommand() {
+			commands = new String[1];
+			commands[0] = "cd $HOME/Desktop/server; javac *.java; java MyServer";
+			String args = commands[0];
+			args += " ";
+			args += props.get("srvPort");
+			args += " ";
+			args += props.get("rdCount");
+			args += " ";
+			args += props.get("wrCount");
+			commands[0] = args;
 		}
 		
 		private void createFactory() {
@@ -341,7 +281,7 @@ public class Start {
 			}
 		}
 	}
-	
+		
 	
 	private static class ClientFactory implements Runnable {
 
